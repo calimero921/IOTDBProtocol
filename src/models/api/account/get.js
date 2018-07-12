@@ -19,7 +19,7 @@ module.exports = function (query, offset, limit, overtake) {
         let parameter = {};
         if (typeof limit !== 'undefined') parameter.limit = limit;
         if (typeof offset !== 'undefined') parameter.offset = offset;
-        apiGet(query, , overtake)
+        apiGet(query, overtake)
             .then(datas => {
                 let result = [];
                 if (datas.length > 0) {

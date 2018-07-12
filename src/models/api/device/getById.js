@@ -4,8 +4,8 @@ const errorparsing = require('../../../utils/errorparsing.js');
 const apiGet = require('../../apiGet.js');
 const Converter = require('./converter.js');
 
-module.exports = function (overtake) {
-    const log4n = new Log4n('/models/api/device/get');
+module.exports = function (id, overtake) {
+    const log4n = new Log4n('/models/api/device/getById');
     log4n.object(id, 'id');
     log4n.object(overtake, 'overtake');
     if (typeof overtake === 'undefined') overtake = false;
@@ -15,10 +15,11 @@ module.exports = function (overtake) {
         // const converter = new Converter();
 
         try{
-            apiGet('/device', '', overtake)
-                .then((data)=>{
-                    if(typeof data === 'undefined') throw 'data not found';
-                    resolve (data);
+            apiGet('/device/' + id, '', overtake)
+                .then((datas)=>{
+                    log4n.object(datas, 'datas');
+                    if(typeof datas === 'undefined') throw 'data not found';
+                    resolve (datas);
                 })
                 .catch((err) => {
                     reject(errorparsing(err));

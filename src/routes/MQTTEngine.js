@@ -2,7 +2,7 @@ const configMQTT = require('../config/mqtt.js');
 const Log4n = require('../utils/log4n.js');
 const mqtt = require('mqtt');
 const checkJSON = require('../utils/checkJSON.js');
-const mqttroute = require('../mqttroutes/mqttroute.js')
+const mqttroute = require('../mqttroutes/mqttroute.js');
 
 const log4n = new Log4n('/MQTTEngine');
 let clientMQTT = {};

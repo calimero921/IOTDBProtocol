@@ -1,6 +1,6 @@
 module.exports = {
     hostName: 'localhost',
-    hostPort: 4443,
+    hostPort: 3443,
     hostPath: '/1.0.0',
     login : 'e.david@orange.fr',
     password : 'Password1!',

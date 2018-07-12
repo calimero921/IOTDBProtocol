@@ -21,7 +21,7 @@ module.exports = function (error) {
         return errorparsing(result);
     } catch (error) {
         console.log('error:', error);
-        log4n.debug('done - try catch')
+        log4n.debug('done - try catch');
         return errorparsing(error);
     }
 };
