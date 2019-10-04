@@ -1,22 +1,22 @@
 const Log4n = require('../../utils/log4n.js');
-const responseError = require('../../utils/responseError.js');
-const errorparsing = require('../../utils/errorparsing.js');
 const decodePost = require('../../utils/decodePost.js');
 const setDevice = require('../../models/api/device/register.js');
+const errorparsing = require('../../utils/errorparsing.js');
+const responseError = require('../../utils/responseError.js');
 
-module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/api/register');
+module.exports = function (context, req, res) {
+    const log4n = new Log4n(context, '/routes/api/register');
 
     //lecture des données postées
-    decodePost(req, res)
+    decodePost(context, req, res)
         .then(datas => {
             // log4n.object(datas, 'datas');
             if (typeof datas === 'undefined') {
                 //aucune donnée postée
-                return errorparsing({error_code: 400});
+                return errorparsing(context, {error_code: 400});
             } else {
                 //creation du compte
-                return setDevice(datas);
+                return setDevice(context, datas);
             }
         })
         .then(datas => {
@@ -27,12 +27,12 @@ module.exports = function (req, res) {
                 log4n.debug('done - ok');
             } else {
                 //erreur dans le processus d'enregistrement de la notification
-                responseError(datas, res, log4n);
+                responseError(context, datas, res, log4n);
                 log4n.debug('done - response error');
             }
         })
         .catch(error => {
-            responseError(error, res, log4n);
+            responseError(context, error, res, log4n);
             log4n.debug('done - promise catch');
         });
 };

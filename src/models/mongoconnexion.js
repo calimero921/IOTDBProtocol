@@ -13,7 +13,7 @@ module.exports = function () {
 
             mongoClient.connect(url)
                 .then(client => {
-                    log4n.debug('Connected successfully to server');
+                    log4n.debug('Connected successfully to hostName');
                     global.mongodbConnexion = client.db(mongodbconf.dbName);
                     resolve();
                     log4n.debug('done - ok (new)');

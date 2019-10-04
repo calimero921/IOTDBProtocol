@@ -1,7 +1,8 @@
 module.exports = {
-    name: 'IOTDB',
-    port: '5443',
-    url: "https://localhost:5443",
+    name: 'IOTDBPROTOCOL',
+    hostProtocol: 'https',
+    hostName: 'localhost',
+    hostPort: '5443',
     session_timeout: 3600000,
-    date: '2018-06-25'
+    date: '2019-10-01'
 };

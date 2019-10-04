@@ -3,7 +3,7 @@ const Log4n = require('../../../utils/log4n.js');
 const sendMail = require('../../../utils/sendMail.js');
 const responseError = require('../../../utils/responseError.js');
 const createPassword = require('../account/createPassword.js');
-const server = require('../../../config/server.js');
+const config = require('../../../config/server.js');
 const getUsersByEmail = require('./getByEmail.js');
 const setUsersPassword = require('./setPassword.js');
 
@@ -28,12 +28,13 @@ module.exports = function (email) {
                 log4n.object(datas, 'datas');
                 if(typeof datas === 'undefined') throw 'error writing database';
                 if(datas = false) throw 'error writing password for user ' + user.email;
+                let serverUrl = config.hostProtocol + "://" + config.hostName + ":" + server.port;
 
                 return sendMail(
                     user.email,
                     'Initialize your cSam password',
-                    'Please click on the above button to initialize your password in three hours.<br>If it does not work, please paste the link into your web browser\'s address field to complete the registration process..<br>Link: <a href="' + server.url + '/reset/' + user.email + '/' + user.token + '">' + server.url + '/reset/' + user.email + '/' + user.token + '</a>',
-                    'Please click on the above button to initialize your password in three hours.\r\nIf it does not work, please paste the link into your web browser\'s address field to complete the registration process..\r\n' + server.url + '/reset/' + user.email + '/' + user.token
+                    'Please click on the above button to initialize your password in three hours.<br>If it does not work, please paste the link into your web browser\'s address field to complete the registration process..<br>Link: <a href="' + config.url + '/reset/' + user.email + '/' + user.token + '">' + serverUrl + '/reset/' + user.email + '/' + user.token + '</a>',
+                    'Please click on the above button to initialize your password in three hours.\r\nIf it does not work, please paste the link into your web browser\'s address field to complete the registration process..\r\n' + serverUrl + '/reset/' + user.email + '/' + user.token
                 );
             })
             .then(result => {

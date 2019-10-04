@@ -3,10 +3,10 @@
 const https = require('https');
 const Log4n = require('../utils/log4n.js');
 const api = require('../config/iotdbapi');
-const decodeResponse = require('../utils/decodeResponse.js');
+const DecodeResponse = require('../utils/decodeResponse.js');
 const errorparsing = require('../utils/errorparsing.js');
 
-module.exports = function (apiPath, data, errorMessage) {
+module.exports = function (context, apiPath, data, errorMessage) {
     const log4n = new Log4n('/models/apiPost');
     log4n.debug('apiPath:' + apiPath);
     log4n.debug('data: ' + data);
@@ -14,11 +14,12 @@ module.exports = function (apiPath, data, errorMessage) {
 
     return new Promise((resolve, reject) => {
         let callReturn;
+        let decodeResponse = new DecodeResponse(context);
         try {
             if(typeof apiPath === 'undefined') throw('missing apiPath parameter');
             if(typeof data === 'undefined') throw('missing data parameter');
             if(typeof errorMessage === 'undefined') throw('missing errorMessage parameter');
-            let auth = 'Basic ' + Buffer.from(api.login + ':' + api.password).toString('base64');
+            let auth = 'Bearer ' + api.accessToken;
 
             const jsonObject = JSON.stringify(data);
 //			log4n.debug('jsonObject: ' + jsonObject);
@@ -49,7 +50,7 @@ module.exports = function (apiPath, data, errorMessage) {
                         log4n.debug('reject return empty.');
                         reject('POST:return empty');
                     } else {
-                        responseContent = decodeResponse(callReturn);
+                        responseContent = decodeResponse.decode(callReturn);
                         // log4n.object(responseContent, "response");
 
                         if(typeof responseContent.code === 'undefined') {

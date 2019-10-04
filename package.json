@@ -1,0 +1,42 @@
+{
+	"name": "IOTDBProtocol",
+	"version": "1.0.0",
+	"description": "IOT Management platform - protocol module",
+	"private": true,
+	"license": "Apache-2.0",
+	"bugs": {
+		"url": "https://github.com/calimero921/IOTDBProtocol/issues",
+		"email": "calimero921@gmail.com"
+	},
+	"author": {
+		"name": "Emmanuel David",
+		"email": "calimero921@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/calimero921/IOTDBProtocol.git"
+	},
+	"scripts": {
+		"start": "node src/app.js"
+	},
+	"dependencies": {
+		"ajv": "^6.10.2",
+		"ajv-async": "^1.0.1",
+		"async-mqtt": "^2.4.2",
+		"body-parser": "^1.19.0",
+		"cookie-parser": "^1.4.4",
+		"express": "^4.17.1",
+		"express-session": "^1.16.2",
+		"http-errors": "^1.7.3",
+		"moment": "^2.24.0",
+		"mongodb": "^3.3.2",
+		"morgan": "^1.9.1",
+		"mqtt": "^3.0.0",
+		"serve-favicon": "^2.5.0",
+		"uuid": "^3.3.3"
+	},
+	"engines": {
+		"node": ">=8.16.1",
+		"npm": ">=6.4.1"
+	}
+}

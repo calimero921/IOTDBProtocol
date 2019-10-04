@@ -4,86 +4,57 @@
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
+
+const createError = require('http-errors');
 const express = require('express');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const MongoDBStore = require('connect-mongodb-session')(session);
-const logger = require('morgan');
-
-const config = require('./config/server.js');
-const mongodbconf = require('./config/mongodb.js');
-const Log4n = require('./utils/log4n.js');
-const MQTTEngine = require('./routes/MQTTEngine.js');
-
-const log4n = new Log4n('/app.js');
-
-log4n.debug("Database connexion setup");
-global.mongodbConnexion = null;
-
-log4n.debug("MQTT client setup");
-global.mqttConnexion = new MQTTEngine();
-global.mqttConnexion.start();
-
-log4n.debug('Create server');
 let app = express();
 
-log4n.debug('Session store setup');
-let store = new MongoDBStore(
-    {
-        uri: mongodbconf.url,
-        databaseName: mongodbconf.dbName,
-        collection: 'session'
-    });
-// Catch errors
-store.on('error', function (error) {
-    assert.ifError(error);
-    assert.ok(false);
-});
+// const session = require('express-session');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const favicon = require('serve-favicon');
 
-log4n.debug('Session manager setup');
-app.use(require('express-session')({
-    secret: 'IOTDBsecrettoprotectsessiondata',
-    cookie: {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-        secure: true
-    },
-    store: store,
-    // Boilerplate options, see:
-    // * https://www.npmjs.com/package/express-session#resave
-    // * https://www.npmjs.com/package/express-session#saveuninitialized
-    resave: true,
-    saveUninitialized: true
-}));
+const config = require('./config/server.js');
+const MQTTEngine = require('./routes/MQTTEngine.js');
+
+const Log4n = require('./utils/log4n.js');
+let context = {httpRequestId: 'Initialize'};
+const log4n = new Log4n(context,'/app.js');
+
+log4n.debug("MQTT client setup");
+global.mqttConnexion = new MQTTEngine(context);
+global.mqttConnexion.start();
 
 log4n.debug("Express server setup");
 app.set('trust proxy', 1);
-require('./routes/main')(app);
+require('./routes/main.js')(app);
 
 // uncomment after placing your favicon in /public
-log4n.debug("View engine setup");
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+// uncomment after placing your favicon in /public
+log4n.debug('Engine setup');
 app.use(logger('dev'));
-app.use(express.static(path.join(__dirname, 'public')));
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-app.engine('html', require('ejs').renderFile);
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 log4n.debug("Parser setup");
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-// app.use(cookieParser());
 
 /**
- * Get port from environment and store in Express.
+ * Get hostPort from environment and store in Express.
  */
-let port = normalizePort(process.env.PORT || config.port);
+let port = normalizePort(process.env.PORT || config.hostPort);
 app.set('port', port);
 
 /**
- * Create HTTPs server.
+ * Create HTTPs hostName.
  */
-log4n.debug("HTTPS server setup");
+log4n.debug("HTTPS Server setup");
 let options = {
     key: fs.readFileSync('server.key'),
     cert: fs.readFileSync('server.crt')
@@ -91,16 +62,16 @@ let options = {
 let server = https.createServer(options, app);
 
 /**
- * Listen on provided port, on all network interfaces.
+ * Listen on provided hostPort, on all network interfaces.
  */
-log4n.debug("HTTPS server starting");
+log4n.debug("HTTPS hostName starting");
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 server.on('stop', onStop);
 
 module.exports = app;
-log4n.debug('HTTPS server started');
+log4n.debug('HTTPS hostName started');
 
 /**
  * catch 404 and forward to error handler
@@ -118,12 +89,11 @@ app.use(function (err, req, res, next) {
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
     // render the error page
-    res.status(err.status || 500);
-    res.render('error');
+    res.status(err.status || 500).send();
 });
 
 /**
- * Normalize a port into a number, string, or false.
+ * Normalize a hostPort into a number, string, or false.
  */
 function normalizePort(val) {
     let port = parseInt(val, 10);
@@ -134,14 +104,14 @@ function normalizePort(val) {
     }
 
     if (port >= 0) {
-        // port number
+        // hostPort number
         return port;
     }
     return false;
 }
 
 /**
- * Event listener for HTTP server "error" event.
+ * Event listener for HTTP hostName "error" event.
  */
 function onError(error) {
     if (error.syscall !== 'listen') {
@@ -168,24 +138,24 @@ function onError(error) {
 }
 
 /**
- * Event listener for HTTP server "listening" event.
+ * Event listener for HTTP hostName "listening" event.
  */
 function onListening() {
     let addr = server.address();
     let bind = typeof addr === 'string'
         ? 'pipe ' + addr
-        : 'port ' + addr.port;
+        : 'hostPort ' + addr.port;
     log4n.debug('Listening on ' + bind);
 }
 
 /**
- * Event listener for HTTPS server "stop" event.
+ * Event listener for HTTPS hostName "stop" event.
  */
 function onStop() {
 }
 
 /**
- * Event listener for HTTP server "stop" event.
+ * Event listener for HTTP hostName "stop" event.
  */
 process.on( 'SIGINT', function() {
     log4n.debug("MQTT client stop");
