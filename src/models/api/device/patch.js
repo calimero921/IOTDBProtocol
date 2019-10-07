@@ -1,20 +1,20 @@
-const Log4n = require('../../../utils/log4n.js');
-const errorparsing = require('../../../utils/errorparsing.js');
-const mongoClient = require('../../mongodbupdate.js');
 const Converter = require('./converter.js');
 
-module.exports = function (device_id, new_device) {
-    const log4n = new Log4n('/models/api/device/patch');
-    // log4n.object(device_id,'device_id');
-    // log4n.object(new_device,'new_device');
+const Log4n = require('../../../utils/log4n.js');
+const errorparsing = require('../../../utils/errorparsing.js');
+
+module.exports = function (context, device_id, new_device) {
+    const log4n = new Log4n(context, '/models/api/device/patch');
 
     //traitement de recherche dans la base
     return new Promise(function (resolve, reject) {
-        try{
+        try {
+            // log4n.object(device_id,'device_id');
+            // log4n.object(new_device,'new_device');
             log4n.debug('storing device');
-            let converter = new Converter();
+            let converter = new Converter(context);
             if (typeof device_id === 'undefined' || typeof new_device === 'undefined') {
-                reject(errorparsing({error_code: 400}));
+                reject(errorparsing(context, {status_code: 400}));
                 log4n.debug('done - missing paramater')
             } else {
                 let query = {};
@@ -30,36 +30,35 @@ module.exports = function (device_id, new_device) {
                         // log4n.object(datas, 'datas');
                         if (typeof datas === 'undefined') {
                             log4n.debug('done - no data');
-                            return errorparsing({error_code: 500});
+                            return errorparsing(context, {status_code: 500});
                         } else {
-                            if (typeof datas.error_code === 'undefined') {
+                            if (typeof datas.status_code === 'undefined') {
                                 log4n.debug('done - ok');
                                 return converter.db2json(datas);
                             } else {
-                                log4n.debug('done - error');
                                 return datas;
                             }
                         }
                     })
                     .then(datas => {
-                        if (typeof datas.error_code === 'undefined') {
+                        if (typeof datas.status_code === 'undefined') {
                             resolve(datas);
                             log4n.debug('done - ok');
                         } else {
-                            reject(errorparsing(datas));
+                            reject(errorparsing(context, datas));
                             log4n.debug('done - error')
                         }
                     })
                     .catch(error => {
                         log4n.object(error, 'error');
-                        reject(errorparsing(error));
-                        log4n.debug('done - global catch')
+                        reject(errorparsing(context, error));
+                        log4n.debug('done - promise catch')
                     });
             }
-        } catch(error) {
-            log4n.object(error, 'error');
-            reject(errorparsing(error));
-            log4n.debug('done - global catch');
+        } catch (exception) {
+            log4n.object(exception, 'exception');
+            reject(errorparsing(context, exception));
+            log4n.debug('done - exception');
         }
     });
 };

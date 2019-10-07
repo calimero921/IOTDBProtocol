@@ -42,7 +42,7 @@ module.exports = function (context, content) {
                             log4n.debug('done - no data');
                         } else {
                             //recherche d'un code erreur précédent
-                            if (typeof datas.error_code === 'undefined') {
+                            if (typeof datas.status_code === 'undefined') {
                                 //device enregistrée
                                 let message = {"message": "registred", "payload" : datas};
                                 global.mqttConnexion.publish(configMQTT.topic_system, message);

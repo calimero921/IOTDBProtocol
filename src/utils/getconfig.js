@@ -11,7 +11,7 @@ module.exports = function (req, res, admin) {
         let session_id = req.sessionID;
         let config = {};
         if (typeof session_id === 'undefined') {
-            reject(errorparsing({error_code: 401, error_message: 'Unauthorized'}));
+            reject(errorparsing({status_code: 401, status_message: 'Unauthorized'}));
             log4n.debug("done - no session available");
         } else {
             log4n.debug("Session:" + session_id);
@@ -22,14 +22,14 @@ module.exports = function (req, res, admin) {
                         config.user = result[0];
                         if((admin === true) && (result[0].admin === false)) {
                             log4n.debug("User haven't sufficient right to access this page");
-                            reject(errorparsing({error_code: 403, error_message: 'Forbidden'}));
+                            reject(errorparsing({status_code: 403, status_message: 'Forbidden'}));
                         } else {
                             let last = new moment(config.user.last_connexion_date);
                             config.user.last_connexion_date = last.format('DD/MMM/YYYY HH:mm:SS');
                             resolve(config);
                         }
                     } else {
-                        // reject(errorparsing({error_code: 401, error_message: 'Unauthorized'}));
+                        // reject(errorparsing({status_code: 401, status_message: 'Unauthorized'}));
                         resolve(config);
                         log4n.debug("done - no user found for this session");
                     }

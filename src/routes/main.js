@@ -13,6 +13,7 @@ let context = {httpRequestId: 'Initialize'};
 module.exports = function (app) {
     const log4n = new Log4n(context, '/routes/main');
     app.use((req, res, next) => {
+        log4n.debug('watermark');
         req.httpRequestId = Date.now().toString();
         next();
     });

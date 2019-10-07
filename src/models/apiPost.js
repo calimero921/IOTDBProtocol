@@ -40,7 +40,7 @@ module.exports = function (context, apiPath, data, errorMessage) {
 
             const request = https.request(options, (response) => {
                 if (response.statuscode < 200 || response.code > 299)
-                    throw('Post failed:' + response.statuscode);
+                    throw(errorparsing(context, {status_code: response.statusCode}));
 
                 response.setEncoding('utf8');
                 response.on('end', () => {

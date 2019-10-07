@@ -1,22 +1,28 @@
-const Log4n = require('../../utils/log4n.js');
 const configMQTT = require('../../config/mqtt.js');
+
 const exists = require('../../models/api/device/exists.js');
-const set = require('../../models/api/device/set.js');
-// const update = require('../../models/api/device/patch.js');
+
+const Log4n = require('../../utils/log4n.js');
 const errorparsing = require('../../utils/errorparsing.js');
 
 module.exports = function (context, content) {
     const log4n = new Log4n(context, '/mqttroutes/device/register');
-    log4n.object(content, 'content');
 
     //traitement d'enregistrement dans la base
     return new Promise((resolve, reject) => {
-        try{
+        try {
+            log4n.object(content, 'content');
             if (typeof content === 'undefined') {
                 //aucune donnée postée
                 log4n.debug('done - no data');
-                reject(errorparsing(context, {error_code: 400, error_message:'Missing parameter'}));
+                reject(errorparsing(context, {status_code: 400, status_message: 'Missing parameter'}));
             } else {
+                let topic = configMQTT.topic_system + '/' + content.manufacturer + '/' + content.model + '/' + content.serial;
+                let message = {
+                    payload: content,
+                    status_code: 0,
+                    status_message: 'registration error'
+                };
                 let query = content;
                 exists(context, query)
                     .then(result => {
@@ -24,15 +30,9 @@ module.exports = function (context, content) {
                         if (typeof result === 'undefined') {
                             //enregistrement des données postées
                             log4n.debug('inserting device');
-                            return set(context, content);
+                            return errorparsing(context, {status_code: 404});
                         } else {
-                            content.device_id = result.device_id;
-                            // enregistrement des données postées
-                            // log4n.debug('updating device');
-                            // let record = result[0];
-                            // content.key = record.key;
-                            // content.creation_date = record.creation_date;
-                            // return update(record.id, content);
+                            message.payload.device_id = result.device_id;
                             return content;
                         }
                     })
@@ -40,39 +40,41 @@ module.exports = function (context, content) {
                         // log4n.object(datas, 'datas');
                         if (typeof datas === 'undefined') {
                             //aucune données recue du processus d'enregistrement
-                            reject(errorparsing(context, {error_code: 500}));
+                            message.status_code = 500;
+                            global.mqttConnexion.publish(topic, message);
+                            reject(errorparsing(context, {status_code: 500}));
                             log4n.debug('done - no data');
                         } else {
                             //recherche d'un code erreur précédent
-                            if (typeof datas.error_code === 'undefined') {
+                            if (typeof datas.status_code === 'undefined') {
                                 //device enregistrée
                                 log4n.debug('device stored');
-                                let message = {
-                                    "message": "registred",
-                                    "payload" : datas
-                                };
-                                global.mqttConnexion.publish(configMQTT.topic_system, message);
+                                message.status_code = 200;
+                                message.status_message = 'registred';
+                                global.mqttConnexion.publish(topic, message);
                                 resolve();
                                 log4n.debug('done - ok');
                             } else {
                                 //erreur dans le processus d'enregistrement de la notification
+                                message.status_code = datas.status_code;
+                                global.mqttConnexion.publish(topic, message);
                                 reject(errorparsing(context, datas));
                                 log4n.debug('done - response error');
                             }
                         }
                     })
                     .catch(error => {
-                        console.log(error);
                         log4n.object(error, 'error');
+                        message.status_code = error.status_code;
+                        global.mqttConnexion.publish(topic, message);
                         reject(errorparsing(context, error));
                         log4n.debug('done - promise catch');
                     });
             }
-        } catch(error) {
-            console.log(error);
-            log4n.object(error, 'error');
-            reject(errorparsing(context, error));
-            log4n.debug('done - global catch');
+        } catch (exception) {
+            log4n.object(exception, 'exception');
+            reject(errorparsing(context, exception));
+            log4n.debug('done - exception');
         }
     });
 };

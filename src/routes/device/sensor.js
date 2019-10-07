@@ -14,7 +14,7 @@ module.exports = function (context, content) {
             if (typeof content === 'undefined') {
                 //aucune donnée postée
                 log4n.debug('done - no data');
-                reject(errorparsing(context, {error_code: 400}));
+                reject(errorparsing(context, {status_code: 400}));
             } else {
                 let query = {"device_id": content.id};
                 get(context, query, "", "", true)
@@ -23,7 +23,7 @@ module.exports = function (context, content) {
                         if (typeof result === 'undefined') {
                             //enregistrement absent
                             log4n.debug('unknown device');
-                            return errorparsing(context, {error_code: 404});
+                            return errorparsing(context, {status_code: 404});
                         } else {
                             //enregistrement des données postées
                             log4n.debug('updating data');
@@ -43,11 +43,11 @@ module.exports = function (context, content) {
                         // log4n.object(datas, 'datas');
                         if (typeof datas === 'undefined') {
                             //aucune données recue du processus d'enregistrement
-                            reject(errorparsing(context, {error_code: 500}));
+                            reject(errorparsing(context, {status_code: 500}));
                             log4n.debug('done - no data');
                         } else {
                             //recherche d'un code erreur précédent
-                            if (typeof datas.error_code === 'undefined') {
+                            if (typeof datas.status_code === 'undefined') {
                                 //data enregistrées
                                 log4n.debug('data updated');
                                 let message = {"message": "ok"};

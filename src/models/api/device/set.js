@@ -16,7 +16,7 @@ module.exports = function (device) {
             const generator = new Generator();
             const converter = new Converter();
             if (typeof device === 'undefined') {
-                reject(errorparsing({error_code: '400'}));
+                reject(errorparsing({status_code: '400'}));
                 log4n.log('done - missing parameter');
             } else {
                 log4n.debug('preparing datas');
@@ -34,7 +34,7 @@ module.exports = function (device) {
                         // console.log('datas: ', datas);
                         if (typeof datas === 'undefined') {
                             log4n.debug('done - no data');
-                            return(errorparsing({error_code: '500'}));
+                            return(errorparsing({status_code: '500'}));
                         } else {
                             return converter.db2json(datas[0]);
                         }
@@ -43,9 +43,9 @@ module.exports = function (device) {
                         // log4n.object(datas, 'datas');
                         if (typeof datas === 'undefined') {
                             log4n.debug('done - no data');
-                            reject(errorparsing({error_code: '500'}));
+                            reject(errorparsing({status_code: '500'}));
                         } else {
-                            if(typeof datas.error_code === "undefined") {
+                            if(typeof datas.status_code === "undefined") {
                                 resolve(datas);
                                 log4n.debug('done - ok');
                             } else {

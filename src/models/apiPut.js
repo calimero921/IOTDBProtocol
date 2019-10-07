@@ -38,7 +38,7 @@ module.exports = function (apiPath, data, errorMessage) {
 
             const request = http.request(options, (response) => {
                 if (response.statuscode < 200 || response.code > 299)
-                    throw('Put failed:' + response.statuscode);
+                    throw(errorparsing(context, {status_code: response.statusCode}));
 
                 response.setEncoding('utf8');
                 response.on('end', () => {

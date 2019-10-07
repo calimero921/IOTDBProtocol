@@ -7,7 +7,7 @@ const outputEncoding = 'hex';
 
 class Cipher{
     constructor(context) {
-        const log4n = new Log4n(this.context,'/models/api/device/cipher/constructor');
+        const log4n = new Log4n(context,'/models/api/device/cipher/constructor');
         this.context = context;
         log4n.debug('Done - Ok')
     }

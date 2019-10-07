@@ -31,7 +31,7 @@ module.exports = function (apiPath, errorMessage) {
 
             const request = http.get(options, function(response) {
                 if (response.statuscode < 200 || response.code > 299) {
-                    throw('Delete failed:' + response.statuscode);
+                    throw(errorparsing(context, {status_code: response.statusCode}));
                 } else {
                     response.setEncoding('utf8');
                     response.on('end', () => {

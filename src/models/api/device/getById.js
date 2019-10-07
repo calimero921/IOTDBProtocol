@@ -1,31 +1,34 @@
+const apiGet = require('../../apiGet.js');
+
 const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
-// const mongoClient = require('../../mongodbfind.js');
-const apiGet = require('../../apiGet.js');
-const Converter = require('./converter.js');
 
-module.exports = function (id, overtake) {
-    const log4n = new Log4n('/models/api/device/getById');
-    log4n.object(id, 'id');
-    log4n.object(overtake, 'overtake');
-    if (typeof overtake === 'undefined') overtake = false;
+module.exports = function (context, id, overtake) {
+    const log4n = new Log4n(context, '/models/api/device/getById');
 
     //traitement de recherche dans la base
-    return new Promise(function (resolve, reject) {
-        // const converter = new Converter();
+    return new Promise((resolve, reject) => {
+        try {
+            log4n.object(id, 'id');
+            log4n.object(overtake, 'overtake');
+            if (typeof overtake === 'undefined') overtake = false;
 
-        try{
-            apiGet('/device/' + id, '', overtake)
-                .then((datas)=>{
+            apiGet(context, '/device/' + id, '', overtake)
+                .then(datas => {
                     log4n.object(datas, 'datas');
-                    if(typeof datas === 'undefined') throw 'data not found';
-                    resolve (datas);
+                    if (typeof datas === 'undefined') throw 'data not found';
+                    resolve(datas);
+                    log4n.debug('done - ok');
                 })
-                .catch((err) => {
-                    reject(errorparsing(err));
+                .catch((error) => {
+                    log4n.object(error, 'error');
+                    reject(errorparsing(context, error));
+                    log4n.debug('done - error');
                 });
-        } catch(err) {
-            reject(errorparsing(err));
+        } catch (exception) {
+            log4n.object(exception, 'exception');
+            reject(errorparsing(context, exception));
+            log4n.debug('done - exception');
         }
     });
 };
