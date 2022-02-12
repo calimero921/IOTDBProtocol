@@ -20,7 +20,7 @@
 		"start": "node src/app.js"
 	},
 	"dependencies": {
-		"ajv": "^6.10.2",
+		"ajv": "^6.12.3",
 		"ajv-async": "^1.0.1",
 		"async-mqtt": "^2.4.2",
 		"body-parser": "^1.19.0",
